@@ -1,57 +1,13 @@
 {
-  "state": "EXECUTION",
-  "message": "Running Goose: Executing tasks including Monetization Link Injection completion and 5-Star Rating System Implementation.",
+  "state": "FAILED",
+  "message": "Software Factory: Task Failed.",
   "objective": "Draft an affiliate blog post for 'Best Zero-Gravity Chairs for Back Pain 2024'. Create separate modules for 'Market Research', 'SEO Copywriting', and 'Monetization Link Injection'. Ensure we include a 5-star rating for each product and an affiliate disclosure.",
-  "project": "affiliate_marketing_v3",
-  "build_dir": "builds/011_affiliate_marketing_v3",
+  "project": "affiliate_marketing_v5",
+  "build_dir": "builds/001_affiliate_marketing_v5",
   "history": [
-    "State: SPEC_DEVELOPMENT - Starting project: affiliate_marketing_v3",
-    "State: PLANNING - Specification created. Moving to planning...",
-    "State: EXECUTION - Planned 6 tasks."
+    "State: SPEC_DEVELOPMENT - Starting project: affiliate_marketing_v5",
+    "State: FAILED - Failed to create specification: Ran into this error: Rate limit exceeded: You exceeded your current quota, please check your plan an"
   ],
-  "tasks": [
-    {
-      "id": 1,
-      "title": "Market Research",
-      "description": "Conduct detailed market analysis to identify top-performing zero-gravity chairs as of 2024. Evaluate ergonomics, customer reviews, and pricing. Compile a list of at least 10 chairs to be included in the blog post.",
-      "branch": "task/build_011_affiliate_marketing_v3_Market_Research",
-      "status": "COMPLETED",
-      "tokens": 3563
-    },
-    {
-      "id": 2,
-      "title": "SEO Copywriting",
-      "description": "Develop content that targets high-traffic keywords related to zero-gravity chairs and back pain relief. Include meta descriptions and appropriate headings (H1, H2, etc.). Structure content to be engaging and informative.",
-      "branch": "task/build_011_affiliate_marketing_v3_SEO_Copywriting",
-      "status": "COMPLETED",
-      "tokens": 3357
-    },
-    {
-      "id": 3,
-      "title": "Monetization Link Injection",
-      "description": "Integrate affiliate links seamlessly within the blog content. Ensure links lead to reputable retail platforms offering affiliate programs. Maintain transparency with readers by providing an affiliate disclosure.",
-      "branch": "task/build_011_affiliate_marketing_v3_Monetization_Link_Injection",
-      "status": "COMPLETED",
-      "tokens": 2979
-    },
-    {
-      "id": 4,
-      "title": "5-Star Rating System Implementation",
-      "description": "Implement a 5-star rating system for each recommended product, clearly displayed alongside each chair review.",
-      "branch": "task/build_011_affiliate_marketing_v3_5-Star_Rating_System_Implementation",
-      "status": "WORKING",
-      "tokens": 0
-    },
-    {
-      "id": 5,
-      "title": "Affiliate Disclosure Section",
-      "description": "Add an affiliate disclosure section at the beginning or end of the post to inform readers of the affiliate nature of the links."
-    },
-    {
-      "id": 6,
-      "title": "Draft Blog Post and SEO Optimization",
-      "description": "Create a draft of the affiliate blog post following the specified structure and including all required components. Ensure the content is SEO-optimized and ready for publication."
-    }
-  ],
-  "total_tokens": 16480
+  "tasks": [],
+  "total_tokens": 3173
 }

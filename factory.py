@@ -52,7 +52,18 @@ class SoftwareFactory:
         
         dir_name = f"{next_idx:03d}_{self.context.project_name.replace(' ', '_')}"
         self.context.build_dir = os.path.join(base_dir, dir_name)
-        os.makedirs(self.context.build_dir)
+        os.makedirs(self.context.build_dir, exist_ok=True)
+        
+        # Initialize isolated git repository in the build folder
+        subprocess.run(["git", "init"], cwd=self.context.build_dir, capture_output=True)
+        subprocess.run(["git", "config", "user.email", "factory@goose.os"], cwd=self.context.build_dir, capture_output=True)
+        subprocess.run(["git", "config", "user.name", "Software Factory"], cwd=self.context.build_dir, capture_output=True)
+        
+        # Create initial commit to establish 'master' branch
+        with open(os.path.join(self.context.build_dir, ".init"), "w") as f:
+            f.write("Initial")
+        subprocess.run(["git", "add", ".init"], cwd=self.context.build_dir, capture_output=True)
+        subprocess.run(["git", "commit", "-m", "Initial commit"], cwd=self.context.build_dir, capture_output=True)
         
         self.context.spec_path = os.path.join(self.context.build_dir, "spec.md")
         self.context.tasks_path = os.path.join(self.context.build_dir, "tasks.json")
@@ -140,6 +151,9 @@ class SoftwareFactory:
         prompt = f"Create a technical specification for: {self.context.objective}. Save to {self.context.spec_path}."
         output, _ = self.run_goose_command(prompt)
         if output and not "error" in output.lower():
+            # Commit the spec to the isolated repo's master branch
+            subprocess.run(["git", "add", "spec.md"], cwd=self.context.build_dir, capture_output=True)
+            subprocess.run(["git", "commit", "-m", "Added Technical Specification"], cwd=self.context.build_dir, capture_output=True)
             self.transition(State.PLANNING, "Specification created. Moving to planning...")
         else:
             self.transition(State.FAILED, f"Failed to create specification: {output[:100]}")
@@ -160,6 +174,11 @@ class SoftwareFactory:
                 self.context.tasks = tasks
                 with open(self.context.tasks_path, "w") as f:
                     json.dump(tasks, f, indent=2)
+                
+                # Commit tasks.json to the isolated repo's master branch
+                subprocess.run(["git", "add", "tasks.json"], cwd=self.context.build_dir, capture_output=True)
+                subprocess.run(["git", "commit", "-m", "Added Task List"], cwd=self.context.build_dir, capture_output=True)
+                
                 self.transition(State.EXECUTION, f"Planned {len(tasks)} tasks.")
             else:
                 self.transition(State.FAILED, f"Planner did not return JSON. Response: {output[:100]}")
@@ -178,24 +197,38 @@ class SoftwareFactory:
             self.update_status(f"Worker Task {task_id}: {task.get('title', 'untitled')}")
             
             try:
-                subprocess.run(["git", "checkout", "-b", branch_name], check=True)
+                # Target the isolated repo in the build folder
+                build_cvd = self.context.build_dir
+                subprocess.run(["git", "checkout", "-b", branch_name], cwd=build_cvd, check=False)
+                subprocess.run(["git", "checkout", branch_name], cwd=build_cvd, check=True)
                 
                 prompt = f"Executing task: {task.get('title')}. Description: {task.get('description')}. Spec in {self.context.spec_path}. Implement and commit work."
                 output, tokens = self.run_goose_command(prompt)
                 task['tokens'] = tokens
                 
                 if output:
-                    subprocess.run(["git", "add", "."], check=True)
-                    subprocess.run(["git", "commit", "-m", f"Completed Task {task_id}"], check=False)
+                    # Capture identifying filenames if goose created any
+                    exclude = ['.gitignore', 'factory.py', 'dashboard.py', 'status.json', 'README.md', '.DS_Store']
+                    new_files = [f for f in os.listdir(build_cvd) if os.path.isfile(os.path.join(build_cvd, f)) and not f.startswith('.') and f not in exclude]
+                    
+                    if not new_files:
+                        # Fallback: Save the entire output as a markdown file for this task
+                        filename = f"{title}.md"
+                        file_path = os.path.join(build_cvd, filename)
+                        with open(file_path, "w") as f:
+                            f.write(output)
+                        self.update_status(f"Saved fallback output to {filename}")
+
+                    subprocess.run(["git", "add", "."], cwd=build_cvd, check=True)
+                    subprocess.run(["git", "commit", "-m", f"Completed Task {task_id}"], cwd=build_cvd, check=False)
                     task['status'] = 'COMPLETED'
                 else:
                     task['status'] = 'FAILED'
                 
-                subprocess.run(["git", "checkout", "master"], check=True)
+                subprocess.run(["git", "checkout", "master"], cwd=build_cvd, check=False)
             except Exception as e:
                 self.update_status(f"Task {task_id} failed: {e}")
                 task['status'] = 'ERROR'
-                subprocess.run(["git", "checkout", "master"], check=False)
 
         self.transition(State.INTEGRATION, "Execution complete.")
 
