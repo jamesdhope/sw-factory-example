@@ -2,6 +2,7 @@ import subprocess
 import os
 import json
 import dataclasses
+import re
 from enum import Enum
 from typing import List, Optional, Dict
 
@@ -23,6 +24,7 @@ class FactoryContext:
     tasks_path: str = ""
     history: List[str] = dataclasses.field(default_factory=list)
     tasks: List[Dict] = dataclasses.field(default_factory=list)
+    total_tokens: int = 0
 
 class SoftwareFactory:
     def __init__(self, objective: str, project_name: str = "auto_project"):
@@ -63,7 +65,8 @@ class SoftwareFactory:
             "project": self.context.project_name,
             "build_dir": self.context.build_dir,
             "history": self.context.history,
-            "tasks": self.context.tasks
+            "tasks": self.context.tasks,
+            "total_tokens": self.context.total_tokens
         }
         with open("status.json", "w") as f:
             json.dump(status, f, indent=2)
@@ -74,16 +77,29 @@ class SoftwareFactory:
         goose_path = "/Users/jamesdhope/.local/bin/goose"
         try:
             result = subprocess.run(
-                [goose_path, "run", "-i", "-"], 
+                [goose_path, "run", "-i", "-", "--output-format", "json"], 
                 input=prompt,
                 capture_output=True, 
                 text=True, 
                 check=True
             )
-            return result.stdout
-        except subprocess.CalledProcessError as e:
-            self.update_status(f"Goose failed: {e.stderr}")
-            return None
+            output = result.stdout
+            tokens = 0
+            if "{" in output:
+                try:
+                    # JSON from Goose might have conversational text outside it
+                    json_parts = re.findall(r'\{.*\}', output, re.DOTALL)
+                    if json_parts:
+                        # Find the largest JSON block (the session summary)
+                        data = json.loads(json_parts[-1])
+                        tokens = data.get("metadata", {}).get("total_tokens") or 0
+                except:
+                    pass
+            self.context.total_tokens += tokens
+            return output, tokens
+        except Exception as e:
+            self.update_status(f"Goose failed: {e}")
+            return None, 0
 
     def transition(self, next_state: State, message: str = ""):
         self.state = next_state
@@ -109,26 +125,27 @@ class SoftwareFactory:
 
     def handle_spec(self):
         prompt = f"Create a technical specification for: {self.context.objective}. Save to {self.context.spec_path}."
-        if self.run_goose_command(prompt):
+        output, _ = self.run_goose_command(prompt)
+        if output:
             self.transition(State.PLANNING, "Specification created. Moving to planning...")
         else:
             self.transition(State.FAILED, "Failed to create specification.")
 
     def handle_planning(self):
-        prompt = f"Based on the spec in {self.context.spec_path}, create a tasks.json file in {self.context.build_dir} with a list of discrete coding tasks. Format each task as {{'id': 1, 'title': 'name', 'description': '...'}}. ONLY output the raw JSON list."
-        output = self.run_goose_command(prompt)
+        prompt = f"Based on the spec in {self.context.spec_path}, create a tasks.json file with a list of discrete coding tasks. Format each task as {{'id': 1, 'title': 'name', 'description': '...'}}. Output ONLY the raw JSON array. No preamble, no markdown code blocks."
+        output, _ = self.run_goose_command(prompt)
         try:
-            # Try to extract JSON if it was buried in text
-            import re
+            # Robust JSON extraction
             json_match = re.search(r'\[.*\]', output, re.DOTALL)
             if json_match:
-                tasks = json.loads(json_match.group())
+                tasks_str = json_match.group()
+                tasks = json.loads(tasks_str)
                 self.context.tasks = tasks
                 with open(self.context.tasks_path, "w") as f:
                     json.dump(tasks, f, indent=2)
                 self.transition(State.EXECUTION, f"Planned {len(tasks)} tasks.")
             else:
-                self.transition(State.FAILED, "Goose didn't output valid JSON for tasks.")
+                self.transition(State.FAILED, f"Goose output did not contain valid JSON array for tasks. Output start: {output[:50]}...")
         except Exception as e:
             self.transition(State.FAILED, f"Failed to parse tasks.json: {e}")
 
@@ -139,19 +156,20 @@ class SoftwareFactory:
             branch_name = f"task/build_{self.context.build_dir.split('/')[-1]}_{title}"
             task['branch'] = branch_name
             task['status'] = 'WORKING'
+            task['tokens'] = 0
             
-            self.update_status(f"Starting Worker Task {task_id}: {task['title']} on branch {branch_name}")
+            self.update_status(f"Starting Worker Task {task_id}: {task['title']}")
             
-            # Git Branching Flow
             try:
                 subprocess.run(["git", "checkout", "-b", branch_name], check=True)
                 
-                prompt = f"Executing task: {task['title']}. Description: {task['description']}. The spec is in {self.context.spec_path}. Implement the code and tests within the project structure."
-                output = self.run_goose_command(prompt)
+                prompt = f"Executing task: {task['title']}. Description: {task['description']}. The spec is in {self.context.spec_path}. Implement the code and tests within the project structure. Commit your work."
+                output, tokens = self.run_goose_command(prompt)
+                task['tokens'] = tokens
                 
                 if output:
                     subprocess.run(["git", "add", "."], check=True)
-                    subprocess.run(["git", "commit", "-m", f"Completed Task {task_id}: {task['title']}"], check=True)
+                    subprocess.run(["git", "commit", "-m", f"Completed Task {task_id}: {task['title']}"], check=False)
                     task['status'] = 'COMPLETED'
                 else:
                     task['status'] = 'FAILED'
@@ -169,8 +187,9 @@ class SoftwareFactory:
         branch_list = [f"task/build_{self.context.build_dir.split('/')[-1]}_{t['title'].replace(' ', '_')}" 
                        for t in self.context.tasks if t.get('status') == 'COMPLETED']
         
-        prompt = f"Merge the following branches into master: {', '.join(branch_list)}. Resolve any conflicts and finalize the build. Spec is in {self.context.spec_path}."
-        if self.run_goose_command(prompt):
+        prompt = f"Merge the following branches into master: {', '.join(branch_list)}. Resolve any conflicts and finalize the build. Spec is in {self.context.spec_path}. Resolve logic in the project directory."
+        output, _ = self.run_goose_command(prompt)
+        if output:
             self.transition(State.CODE_RELEASE, "Multi-agent integration successful.")
         else:
             self.transition(State.FAILED, "Integration failed.")
@@ -180,8 +199,8 @@ class SoftwareFactory:
 
 if __name__ == "__main__":
     import sys
-    obj = "Build a simple Python weather CLI app that has separate modules for API calls and data formatting."
-    name = "weather_cli"
+    obj = "Build a Turing Test Machine."
+    name = "turing_factory"
     if len(sys.argv) > 1: obj = sys.argv[1]
     if len(sys.argv) > 2: name = sys.argv[2]
     
