@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Goose Software Factory | Observability</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0c;
+            --card-bg: #111114;
+            --accent: #00f2ff;
+            --accent-glow: rgba(0, 242, 255, 0.3);
+            --text-main: #e0e0e6;
+            --text-dim: #9494a1;
+            --success: #00ff88;
+            --error: #ff4d4d;
+            --border: #1f1f26;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: -0.05em;
+            color: var(--accent);
+            text-transform: uppercase;
+        }
+
+        .status-badge {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pulse {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-glow);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.5; }
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 24px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .card-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            letter-spacing: 0.1em;
+        }
+
+        .step-list {
+            list-style: none;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-dim);
+            transition: all 0.3s ease;
+        }
+
+        .step-item.active {
+            color: var(--accent);
+            font-weight: 600;
+            text-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .step-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+        }
+
+        .active .step-icon {
+            border-color: var(--accent);
+            background: rgba(0, 242, 255, 0.1);
+        }
+
+        .log-container {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            background: #050507;
+            border-radius: 8px;
+            padding: 16px;
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            white-space: pre-wrap;
+        }
+
+        .log-entry span {
+            color: var(--accent);
+        }
+
+        .meta-grid {
+            margin-top: 24px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .meta-item label {
+            display: block;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            margin-bottom: 4px;
+        }
+
+        .meta-item value {
+            font-size: 0.9rem;
+            color: var(--text-main);
+            word-break: break-all;
+        }
+
+        /* Responsive Mobile Styles */
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">Software Factory</div>
+            <div class="status-badge">
+                <div class="pulse" id="status-pulse"></div>
+                <span id="factory-state">IDLE</span>
+            </div>
+        </header>
+
+        <div class="main-grid">
+            <div class="sidebar">
+                <div class="card">
+                    <div class="card-title">Production Pipeline</div>
+                    <ul class="step-list" id="pipeline">
+                        <li class="step-item" id="STEP_IDLE"><span class="step-icon">1</span> Idle</li>
+                        <li class="step-item" id="STEP_SPEC_DEVELOPMENT"><span class="step-icon">2</span> Spec Development</li>
+                        <li class="step-item" id="STEP_CODE_GENERATION"><span class="step-icon">3</span> Code Generation</li>
+                        <li class="step-item" id="STEP_CODE_TESTING"><span class="step-icon">4</span> Code Testing</li>
+                        <li class="step-item" id="STEP_CODE_INTEGRATION"><span class="step-icon">5</span> Code Integration</li>
+                        <li class="step-item" id="STEP_CODE_RELEASE"><span class="step-icon">6</span> Code Release</li>
+                    </ul>
+
+                    <div class="card-title" style="margin-top: 24px;">Project Info</div>
+                    <div class="meta-grid">
+                        <div class="meta-item">
+                            <label>Project</label>
+                            <span id="meta-project">-</span>
+                        </div>
+                        <div class="meta-item">
+                            <label>Build Dir</label>
+                            <span id="meta-build">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content">
+                <div class="card">
+                    <div class="card-title">Active Worker Streams</div>
+                    <div class="log-container" id="logs">
+                        <div class="log-entry">Waiting for system pulse...</div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 24px;">
+                    <div class="card-title">Objective</div>
+                    <p id="meta-objective" style="font-size: 1.1rem; font-weight: 300; color: var(--accent);">-</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function fetchStatus() {
+            try {
+                const response = await fetch('/status.json');
+                const data = await response.json();
+                
+                // Update State
+                document.getElementById('factory-state').textContent = data.state;
+                
+                // Update Sidebar
+                const steps = ['IDLE', 'SPEC_DEVELOPMENT', 'CODE_GENERATION', 'CODE_TESTING', 'CODE_INTEGRATION', 'CODE_RELEASE'];
+                steps.forEach(s => {
+                    const el = document.getElementById(`STEP_${s}`);
+                    if (s === data.state) {
+                        el.classList.add('active');
+                    } else {
+                        el.classList.remove('active');
+                    }
+                });
+
+                // Update Metadata
+                document.getElementById('meta-project').textContent = data.project;
+                document.getElementById('meta-build').textContent = data.build_dir;
+                document.getElementById('meta-objective').textContent = data.objective;
+
+                // Update Logs
+                const logContainer = document.getElementById('logs');
+                if (data.history && data.history.length > 0) {
+                    logContainer.innerHTML = data.history.map(entry => {
+                        const [state, ...msg] = entry.split(' - ');
+                        return `<div class="log-entry"><span>${state}</span> ${msg.join(' - ')}</div>`;
+                    }).join('') + `<div class="log-entry"><span>CURRENT</span> ${data.message}</div>`;
+                    logContainer.scrollTop = logContainer.scrollHeight;
+                }
+
+                // Update Pulse Color
+                const pulse = document.getElementById('status-pulse');
+                if (data.state === 'FAILED') {
+                    pulse.style.background = '#ff4d4d';
+                    pulse.style.boxShadow = '0 0 10px rgba(255, 77, 77, 0.4)';
+                } else if (data.state === 'CODE_RELEASE') {
+                    pulse.style.background = '#00ff88';
+                    pulse.style.boxShadow = '0 0 10px rgba(0, 255, 136, 0.4)';
+                } else {
+                    pulse.style.background = '#00f2ff';
+                    pulse.style.boxShadow = '0 0 10px var(--accent-glow)';
+                }
+
+            } catch (e) {
+                console.error("Failed to fetch status:", e);
+            }
+        }
+
+        setInterval(fetchStatus, 1000);
+        fetchStatus();
+    </script>
+</body>
+</html>
