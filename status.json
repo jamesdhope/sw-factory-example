@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "state": "EXECUTION",
   "message": "Running Goose: Executing task: Implement Data Formatting Module. Description: Develop a formatter.py module for manipulating and presenting data...",
   "objective": "Build a simple Python weather CLI app that has separate modules for API calls and data formatting.",
@@ -38,4 +39,15 @@
       "description": "Design and implement unit tests for the API and data formatting modules using unittest or pytest. Test scenarios should cover network failures, incorrect city names, and varied API responses."
     }
   ]  ]
+=======
+  "state": "CODE_GENERATION",
+  "message": "Running Goose: Based on the spec in builds/001_weather_factory/spec.md, generate the implementation in builds/001_w...",
+  "objective": "Build a simple Python weather CLI app that has separate modules for API calls and data formatting.",
+  "project": "weather_factory",
+  "build_dir": "builds/001_weather_factory",
+  "history": [
+    "State: SPEC_DEVELOPMENT - Starting project: weather_factory",
+    "State: CODE_GENERATION - Specification created."
+  ]
+>>>>>>> task/build_002_weather_factory_Setup_Development_Environment
 }

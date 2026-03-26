@@ -3,19 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Goose Software Factory | Observability</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <title>Software Factory | Orchestration Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0a0a0c;
-            --card-bg: #111114;
-            --accent: #00f2ff;
-            --accent-glow: rgba(0, 242, 255, 0.3);
-            --text-main: #e0e0e6;
-            --text-dim: #9494a1;
-            --success: #00ff88;
-            --error: #ff4d4d;
-            --border: #1f1f26;
+            --bg: #000000;
+            --accents-1: #111111;
+            --accents-2: #333333;
+            --accents-3: #444444;
+            --accents-4: #666666;
+            --accents-5: #888888;
+            --accents-6: #999999;
+            --accents-7: #eaeaea;
+            --accents-8: #fafafa;
+            --geist-foreground: #ffffff;
+            --geist-selection: #f81ce5;
+            --geist-success: #0070f3;
+            --geist-error: #ee0000;
+            --geist-warning: #f5a623;
+            --blue: #0070f3;
         }
 
         * {
@@ -25,224 +31,267 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
             background-color: var(--bg);
-            color: var(--text-main);
-            line-height: 1.6;
-            overflow-x: hidden;
+            color: var(--geist-foreground);
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1100px;
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: 60px 24px;
         }
 
         header {
-            margin-bottom: 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 48px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--accents-2);
         }
 
         .logo {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             font-weight: 600;
-            letter-spacing: -0.05em;
-            color: var(--accent);
-            text-transform: uppercase;
+            letter-spacing: -0.02em;
         }
 
         .status-badge {
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            background: var(--card-bg);
-            border: 1px solid var(--border);
             display: flex;
             align-items: center;
             gap: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            padding: 6px 14px;
+            background: var(--accents-1);
+            border: 1px solid var(--accents-2);
+            border-radius: 6px;
         }
 
-        .pulse {
+        .dot {
             width: 8px;
             height: 8px;
-            background: var(--accent);
             border-radius: 50%;
-            box-shadow: 0 0 10px var(--accent-glow);
-            animation: pulse 2s infinite;
+            background: var(--blue);
         }
 
-        @keyframes pulse {
-            0% { transform: scale(0.95); opacity: 0.5; }
-            50% { transform: scale(1.1); opacity: 1; }
-            100% { transform: scale(0.95); opacity: 0.5; }
-        }
-
-        .main-grid {
+        /* Stats Section */
+        .stats-grid {
             display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 24px;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 24px;
-        }
-
-        .card-title {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--text-dim);
-            text-transform: uppercase;
-            margin-bottom: 16px;
-            letter-spacing: 0.1em;
-        }
-
-        .step-list {
-            list-style: none;
-        }
-
-        .step-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border);
-            color: var(--text-dim);
-            transition: all 0.3s ease;
-        }
-
-        .step-item.active {
-            color: var(--accent);
-            font-weight: 600;
-            text-shadow: 0 0 20px var(--accent-glow);
-        }
-
-        .step-icon {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            border: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-        }
-
-        .active .step-icon {
-            border-color: var(--accent);
-            background: rgba(0, 242, 255, 0.1);
-        }
-
-        .log-container {
-            font-family: 'Fira Code', monospace;
-            font-size: 0.9rem;
-            background: #050507;
-            border-radius: 8px;
-            padding: 16px;
-            height: 400px;
-            overflow-y: auto;
-            border: 1px solid var(--border);
-        }
-
-        .log-entry {
-            margin-bottom: 8px;
-            white-space: pre-wrap;
-        }
-
-        .log-entry span {
-            color: var(--accent);
-        }
-
-        .meta-grid {
-            margin-top: 24px;
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 16px;
+            margin-bottom: 32px;
         }
 
-        .meta-item label {
-            display: block;
+        .stat-card {
+            background: var(--accents-1);
+            border: 1px solid var(--accents-2);
+            border-radius: 8px;
+            padding: 16px 20px;
+        }
+
+        .stat-label {
             font-size: 0.7rem;
-            color: var(--text-dim);
+            color: var(--accents-5);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
             margin-bottom: 4px;
         }
 
-        .meta-item value {
-            font-size: 0.9rem;
-            color: var(--text-main);
-            word-break: break-all;
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
         }
 
-        /* Responsive Mobile Styles */
+        /* Main Grid */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 40px;
+        }
+
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--accents-5);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 16px;
+        }
+
+        /* Pipeline List */
+        .pipeline-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            color: var(--accents-5);
+            font-size: 0.9rem;
+            transition: color 0.2s ease;
+        }
+
+        .pipeline-item.active {
+            color: var(--geist-foreground);
+            font-weight: 500;
+        }
+
+        .pipeline-num {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--accents-2);
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-family: inherit;
+        }
+
+        .active .pipeline-num {
+            border-color: var(--blue);
+            color: var(--blue);
+        }
+
+        /* Task Cards */
+        .task-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .task-card {
+            background: var(--accents-1);
+            border: 1px solid var(--accents-2);
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .task-info h4 {
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .task-branch {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.75rem;
+            color: var(--accents-5);
+        }
+
+        .task-status {
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 4px 10px;
+            border-radius: 4px;
+            text-transform: capitalize;
+        }
+
+        .status-completed { background: rgba(0, 112, 243, 0.1); color: var(--blue); }
+        .status-working { background: rgba(245, 166, 35, 0.1); color: var(--geist-warning); }
+        .status-pending { background: var(--accents-2); color: var(--accents-5); }
+        .status-error { background: rgba(238, 0, 0, 0.1); color: var(--geist-error); }
+
+        /* Logs */
+        .log-container {
+            font-family: 'Fira Code', monospace;
+            background: #000;
+            border: 1px solid var(--accents-2);
+            border-radius: 8px;
+            padding: 20px;
+            height: 300px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+            margin-top: 32px;
+        }
+
+        .log-entry {
+            margin-bottom: 6px;
+            color: var(--accents-5);
+        }
+
+        .log-entry span {
+            color: var(--blue);
+            margin-right: 8px;
+        }
+
+        .log-entry.current {
+            color: var(--geist-foreground);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--accents-2); border-radius: 10px; }
+
         @media (max-width: 900px) {
-            .main-grid {
-                grid-template-columns: 1fr;
-            }
+            .main-layout { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <div class="logo">Software Factory</div>
+            <div class="logo">GOOSE FACTORY</div>
             <div class="status-badge">
-                <div class="pulse" id="status-pulse"></div>
-                <span id="factory-state">IDLE</span>
+                <div class="dot" id="status-pulse"></div>
+                <span id="factory-state">INITIALIZING</span>
             </div>
         </header>
 
-        <div class="main-grid">
-            <div class="sidebar">
-                <div class="card">
-                    <div class="card-title">Production Pipeline</div>
-                    <ul class="step-list" id="pipeline">
-                        <li class="step-item" id="STEP_IDLE"><span class="step-icon">1</span> Idle</li>
-                        <li class="step-item" id="STEP_SPEC_DEVELOPMENT"><span class="step-icon">2</span> Spec Development</li>
-                        <li class="step-item" id="STEP_PLANNING"><span class="step-icon">3</span> Planning (Task Creation)</li>
-                        <li class="step-item" id="STEP_EXECUTION"><span class="step-icon">4</span> Execution (Parallel Workers)</li>
-                        <li class="step-item" id="STEP_INTEGRATION"><span class="step-icon">5</span> Integration (Branch Merging)</li>
-                        <li class="step-item" id="STEP_CODE_RELEASE"><span class="step-icon">6</span> Code Release</li>
-                    </ul>
-
-                    <div class="card-title" style="margin-top: 24px;">Project Info</div>
-                    <div class="meta-grid">
-                        <div class="meta-item">
-                            <label>Project</label>
-                            <span id="meta-project">-</span>
-                        </div>
-                        <div class="meta-item">
-                            <label>Build Dir</label>
-                            <span id="meta-build">-</span>
-                        </div>
-                    </div>
-                </div>
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Tasks</div>
+                <div class="stat-value" id="stat-total">-</div>
             </div>
-
-            <div class="content">
-                <div class="card">
-                    <div class="card-title">Active Worker Streams</div>
-                    <div class="log-container" id="logs">
-                        <div class="log-entry">Waiting for system pulse...</div>
-                    </div>
-                </div>
-
-                <div class="card" style="margin-top: 24px;">
-                    <div class="card-title">Task Orchestration Queue</div>
-                    <div id="task-queue" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">
-                        <!-- Tasks will be rendered here -->
-                    </div>
-                </div>
-
-                <div class="card" style="margin-top: 24px;">
-                    <div class="card-title">Objective</div>
-                    <p id="meta-objective" style="font-size: 1.1rem; font-weight: 300; color: var(--accent);">-</p>
-                </div>
+            <div class="stat-card">
+                <div class="stat-label">Working</div>
+                <div class="stat-value" id="stat-working" style="color: var(--geist-warning)">-</div>
             </div>
+            <div class="stat-card">
+                <div class="stat-label">Completed</div>
+                <div class="stat-value" id="stat-completed" style="color: var(--blue)">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Failed</div>
+                <div class="stat-value" id="stat-failed" style="color: var(--geist-error)">-</div>
+            </div>
+        </section>
+
+        <div class="main-layout">
+            <aside class="sidebar">
+                <div class="section-title">Production Cycle</div>
+                <div id="pipeline">
+                    <div class="pipeline-item" id="STEP_IDLE"><span class="pipeline-num">1</span> Idle</div>
+                    <div class="pipeline-item" id="STEP_SPEC_DEVELOPMENT"><span class="pipeline-num">2</span> Spec Development</div>
+                    <div class="pipeline-item" id="STEP_PLANNING"><span class="pipeline-num">3</span> Planning</div>
+                    <div class="pipeline-item" id="STEP_EXECUTION"><span class="pipeline-num">4</span> Execution</div>
+                    <div class="pipeline-item" id="STEP_INTEGRATION"><span class="pipeline-num">5</span> Integration</div>
+                    <div class="pipeline-item" id="STEP_CODE_RELEASE"><span class="pipeline-num">6</span> Release</div>
+                </div>
+
+                <div class="section-title" style="margin-top: 40px;">Current Project</div>
+                <div style="font-size: 0.9rem; color: var(--accents-7);" id="meta-project">-</div>
+                <div style="font-size: 0.75rem; color: var(--accents-5); margin-top: 8px;" id="meta-build">-</div>
+            </aside>
+
+            <main class="content">
+                <div class="section-title">Worker Orchestration</div>
+                <div class="task-grid" id="task-queue">
+                    <!-- Tasks injected here -->
+                    <div style="color: var(--accents-5); font-size: 0.9rem;">Decomposing specification into tasks...</div>
+                </div>
+
+                <div class="log-container" id="logs">
+                    <div class="log-entry">Booting sequence...</div>
+                </div>
+            </main>
         </div>
     </div>
 
@@ -252,71 +301,64 @@
                 const response = await fetch('/status.json');
                 const data = await response.json();
                 
-                // Update State
+                // State Update
                 document.getElementById('factory-state').textContent = data.state;
                 
-                // Update Sidebar
+                // Pipeline Highlighting
                 const steps = ['IDLE', 'SPEC_DEVELOPMENT', 'PLANNING', 'EXECUTION', 'INTEGRATION', 'CODE_RELEASE'];
                 steps.forEach(s => {
                     const el = document.getElementById(`STEP_${s}`);
-                    if (el) {
-                        if (s === data.state) {
-                            el.classList.add('active');
-                        } else {
-                            el.classList.remove('active');
-                        }
-                    }
+                    if (el) s === data.state ? el.classList.add('active') : el.classList.remove('active');
                 });
 
-                // Update Task Queue
+                // Stats Calculation
+                const tasks = data.tasks || [];
+                const working = tasks.filter(t => t.status === 'WORKING').length;
+                const completed = tasks.filter(t => t.status === 'COMPLETED').length;
+                const failed = tasks.filter(t => t.status === 'ERROR' || t.status === 'FAILED').length;
+                
+                document.getElementById('stat-total').textContent = tasks.length || '-';
+                document.getElementById('stat-working').textContent = working;
+                document.getElementById('stat-completed').textContent = completed;
+                document.getElementById('stat-failed').textContent = failed;
+
+                // Task rendering
                 const queue = document.getElementById('task-queue');
-                if (data.tasks && data.tasks.length > 0) {
-                    queue.innerHTML = data.tasks.map(t => `
-                        <div class="task-card" style="padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: ${t.status === 'COMPLETED' ? 'rgba(0, 255, 136, 0.05)' : t.status === 'WORKING' ? 'rgba(0, 242, 255, 0.05)' : 'rgba(255, 255, 255, 0.02)'}">
-                            <div style="font-size: 0.7rem; color: var(--text-dim); margin-bottom: 4px;">TASK ${t.id}</div>
-                            <div style="font-size: 0.85rem; font-weight: 600; color: ${t.status === 'COMPLETED' ? 'var(--success)' : 'var(--text-main)'}">${t.title}</div>
-                            <div style="font-size: 0.65rem; margin-top: 4px; color: var(--text-dim); font-family: 'Fira Code'">${t.branch || ''}</div>
-                            <div style="font-size: 0.7rem; margin-top: 8px; color: ${t.status === 'COMPLETED' ? 'var(--success)' : t.status === 'WORKING' ? 'var(--accent)' : 'var(--text-dim)'}">${t.status || 'PENDING'}</div>
+                if (tasks.length > 0) {
+                    queue.innerHTML = tasks.map(t => `
+                        <div class="task-card">
+                            <div class="task-info">
+                                <h4>${t.title}</h4>
+                                <div class="task-branch">${t.branch || 'Pending branch...'}</div>
+                            </div>
+                            <div class="task-status status-${(t.status || 'pending').toLowerCase()}">
+                                ${t.status || 'Pending'}
+                            </div>
                         </div>
                     `).join('');
                 }
- else {
-                    queue.innerHTML = '<div style="color: var(--text-dim); font-size: 0.8rem;">Planner has not defined tasks yet.</div>';
-                }
 
-                // Update Metadata
-                document.getElementById('meta-project').textContent = data.project;
-                document.getElementById('meta-build').textContent = data.build_dir;
-                document.getElementById('meta-objective').textContent = data.objective;
+                // Metadata
+                document.getElementById('meta-project').textContent = data.project || '-';
+                document.getElementById('meta-build').textContent = data.build_dir || '-';
 
-                // Update Logs
+                // Logs
                 const logContainer = document.getElementById('logs');
-                if (data.history && data.history.length > 0) {
+                if (data.history) {
                     logContainer.innerHTML = data.history.map(entry => {
-                        const parts = entry.split(' - ');
-                        const state = parts[0];
-                        const msg = parts.slice(1).join(' - ');
-                        return `<div class="log-entry"><span>${state}</span> ${msg}</div>`;
-                    }).join('') + `<div class="log-entry"><span>CURRENT</span> ${data.message}</div>`;
+                        const [state, ...msg] = entry.split(' - ');
+                        return `<div class="log-entry"><span>${state}</span> ${msg.join(' - ')}</div>`;
+                    }).join('') + `<div class="log-entry current"><span>CURRENT</span> ${data.message}</div>`;
                     logContainer.scrollTop = logContainer.scrollHeight;
                 }
 
-                // Update Pulse Color
+                // Dynamic Pulse
                 const pulse = document.getElementById('status-pulse');
-                if (data.state === 'FAILED') {
-                    pulse.style.background = '#ff4d4d';
-                    pulse.style.boxShadow = '0 0 10px rgba(255, 77, 77, 0.4)';
-                } else if (data.state === 'CODE_RELEASE') {
-                    pulse.style.background = '#00ff88';
-                    pulse.style.boxShadow = '0 0 10px rgba(0, 255, 136, 0.4)';
-                } else {
-                    pulse.style.background = '#00f2ff';
-                    pulse.style.boxShadow = '0 0 10px var(--accent-glow)';
-                }
+                if (data.state === 'FAILED' || failed > 0) pulse.style.background = 'var(--geist-error)';
+                else if (data.state === 'CODE_RELEASE') pulse.style.background = 'var(--geist-success)';
+                else pulse.style.background = 'var(--blue)';
 
-            } catch (e) {
-                console.error("Failed to fetch status:", e);
-            }
+            } catch (e) { console.error(e); }
         }
 
         setInterval(fetchStatus, 1000);
