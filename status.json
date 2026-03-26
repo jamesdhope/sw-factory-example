@@ -1,39 +1,51 @@
 {
-  "state": "MERGING",
-  "message": "Merging branches for Implement Interrogator Module, Develop AI Respondent, Create Human-Proxy Respondent, and Design Evaluation Mechanism.",
-  "objective": "Build a Python-based Turing Test Machine. It should have a module for a simulated 'interrogator' and two modules for 'respondents' (one AI, one human-proxy). The machine should evaluate the interrogator's guesses.",
-  "project": "turing_factory",
-  "build_dir": "builds/009_turing_factory",
+  "state": "EXECUTION",
+  "message": "Running Goose: Executing tasks. Description: Conduct detailed market analysis and develop content targeting high-traffic keywords related to zero-gravity chairs and back pain relief.",
+  "objective": "Draft an affiliate blog post for 'Best Zero-Gravity Chairs for Back Pain 2024'. Create separate modules for 'Market Research', 'SEO Copywriting', and 'Monetization Link Injection'. Ensure we include a 5-star rating for each product and an affiliate disclosure.",
+  "project": "affiliate_marketing_v3",
+  "build_dir": "builds/011_affiliate_marketing_v3",
+  "history": [
+    "State: SPEC_DEVELOPMENT - Starting project: affiliate_marketing_v3",
+    "State: PLANNING - Specification created. Moving to planning...",
+    "State: EXECUTION - Planned 6 tasks."
+  ],
   "tasks": [
     {
       "id": 1,
-      "title": "Implement Interrogator Module",
-      "description": "Develop the module that interacts with both the AI and Human-Proxy Respondents. It should be capable of initiating dialogue sessions, recording conversation history, and submitting guesses about each respondent's identity.",
-      "branch": "task/build_009_turing_factory_Implement_Interrogator_Module",
+      "title": "Market Research",
+      "description": "Conduct detailed market analysis to identify top-performing zero-gravity chairs as of 2024. Evaluate ergonomics, customer reviews, and pricing. Compile a list of at least 10 chairs to be included in the blog post.",
+      "branch": "task/build_011_affiliate_marketing_v3_Market_Research",
       "status": "COMPLETED",
-      "tokens": 5079
+      "tokens": 3563
     },
     {
       "id": 2,
-      "title": "Develop AI Respondent",
-      "description": "Create the AI Respondent module that generates human-like responses. It should maintain the context of the conversation to ensure coherent dialogue.",
-      "branch": "task/build_009_turing_factory_Develop_AI_Respondent",
-      "status": "COMPLETED",
-      "tokens": 5079
-    },
-    {
-      "id": 3,
-      "title": "Create Human-Proxy Respondent",
-      "description": "Develop the Human-Proxy Respondent module to simulate human behaviors and responses.",
-      "branch": "task/build_009_turing_factory_Create_Human-Proxy_Respondent",
+      "title": "SEO Copywriting",
+      "description": "Develop content that targets high-traffic keywords related to zero-gravity chairs and back pain relief. Include meta descriptions and appropriate headings (H1, H2, etc.). Structure content to be engaging and informative.",
+      "branch": "task/build_011_affiliate_marketing_v3_SEO_Copywriting",
       "status": "WORKING",
       "tokens": 0
     },
     {
+      "id": 3,
+      "title": "Monetization Link Injection",
+      "description": "Integrate affiliate links seamlessly within the blog content. Ensure links lead to reputable retail platforms offering affiliate programs. Maintain transparency with readers by providing an affiliate disclosure."
+    },
+    {
       "id": 4,
-      "title": "Design Evaluation Mechanism",
-      "description": "Develop the evaluation mechanism to assess the accuracy of the interrogator’s guesses, calculate the success rate, and provide feedback for improving future iterations."
+      "title": "5-Star Rating System Implementation",
+      "description": "Implement a 5-star rating system for each recommended product, clearly displayed alongside each chair review."
+    },
+    {
+      "id": 5,
+      "title": "Affiliate Disclosure Section",
+      "description": "Add an affiliate disclosure section at the beginning or end of the post to inform readers of the affiliate nature of the links."
+    },
+    {
+      "id": 6,
+      "title": "Draft Blog Post and SEO Optimization",
+      "description": "Create a draft of the affiliate blog post following the specified structure and including all required components. Ensure the content is SEO-optimized and ready for publication."
     }
   ],
-  "total_tokens": 10158
+  "total_tokens": 10144
 }
