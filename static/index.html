@@ -37,6 +37,7 @@
             justify-content: space-between;
             border-bottom: 1px solid var(--border);
             flex-shrink: 0;
+            z-index: 10;
         }
 
         .logo { font-weight: 600; font-size: 0.9rem; letter-spacing: 0.05em; color: var(--text-main); }
@@ -56,7 +57,7 @@
 
         .main-container {
             display: grid;
-            grid-template-columns: 240px 1fr 280px;
+            grid-template-columns: 1fr 340px; /* Log focused layout */
             flex-grow: 1;
             overflow: hidden;
         }
@@ -65,7 +66,6 @@
         .column {
             display: flex;
             flex-direction: column;
-            border-right: 1px solid var(--border);
             height: 100%;
             overflow: hidden;
         }
@@ -76,94 +76,96 @@
             font-weight: 600;
             color: var(--text-dim);
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.1em;
             border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            background: #000;
+            z-index: 5;
         }
 
-        /* Pipeline (Left) */
-        .pipeline-list { padding: 12px; }
-        .pipeline-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 8px 12px;
-            border-radius: 6px;
-            color: var(--text-dim);
-            font-size: 0.85rem;
-            margin-bottom: 4px;
+        /* Output Area (Dominant Left/Center) */
+        .output-area { 
+            background: #000; 
+            border-right: 1px solid var(--border);
+            display: flex; 
+            flex-direction: column;
+            position: relative;
         }
-        .pipeline-item.active { background: #111; color: var(--text-main); }
-        .p-num {
-            width: 18px; height: 18px;
-            display: flex; align-items: center; justify-content: center;
-            border: 1px solid var(--border); border-radius: 4px;
-            font-size: 0.65rem;
-        }
-        .active .p-num { border-color: var(--blue); color: var(--blue); }
-
-        /* Output Area (Center) */
-        .output-area { background: #000; flex-grow: 1; display: flex; flex-direction: column; }
         
-        /* Task Bar inside Output Window */
+        /* Persistent Task Header in Output Area */
         .task-bar {
             display: flex;
             gap: 12px;
             padding: 12px 20px;
-            background: #050505;
+            background: #030303;
             border-bottom: 1px solid var(--border);
             overflow-x: auto;
             flex-shrink: 0;
         }
 
         .t-compact-card {
-            min-width: 160px;
-            padding: 10px 14px;
-            background: #0a0a0a;
+            min-width: 140px;
+            padding: 8px 12px;
+            background: #000;
             border: 1px solid var(--border);
-            border-radius: 6px;
+            border-radius: 4px;
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 2px;
         }
 
-        .t-title { font-size: 0.75rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .t-status { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        .t-title { font-size: 0.7rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .t-status { font-size: 0.55rem; text-transform: uppercase; }
         
         .log-stream {
             flex-grow: 1;
-            padding: 24px;
+            padding: 24px 32px;
             font-family: 'Fira Code', monospace;
-            font-size: 0.85rem;
-            line-height: 1.6;
+            font-size: 0.9rem;
+            line-height: 1.7;
             overflow-y: auto;
             color: var(--text-dim);
             white-space: pre-wrap;
             overflow-wrap: break-word;
             word-break: break-word;
         }
-        .log-entry span { color: var(--blue); margin-right: 12px; }
-        .log-entry.current { color: var(--text-main); }
+        .log-entry { margin-bottom: 8px; border-left: 2px solid transparent; padding-left: 12px; }
+        .log-entry span { color: var(--blue); margin-right: 16px; font-weight: 500; font-size: 0.8rem; }
+        .log-entry.current { color: var(--text-main); border-left-color: var(--blue); }
 
-        /* Sidebar (Right) */
-        .right-sidebar { border-right: none; background: var(--sidebar); }
+        /* Sidebar (Right) - State & Stats */
+        .right-sidebar { background: var(--sidebar); }
         
-        .stats-section {
-            padding: 20px;
+        .panel-section {
+            border-bottom: 1px solid var(--border);
+            padding: 24px;
+        }
+
+        .pipeline-list { margin-top: 12px; }
+        .pipeline-item {
             display: flex;
-            flex-direction: column;
-            gap: 16px;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 0;
+            color: var(--text-dim);
+            font-size: 0.8rem;
+        }
+        .pipeline-item.active { color: var(--text-main); font-weight: 500; }
+        .p-dot-small { width: 5px; height: 5px; border-radius: 50%; border: 1px solid var(--border); }
+        .active .p-dot-small { background: var(--blue); border-color: var(--blue); box-shadow: 0 0 8px var(--blue); }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
         }
         .stat-box {
-            padding: 16px;
+            padding: 12px;
             background: #000;
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: 6px;
         }
-        .stat-label { font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
-        .stat-val { font-size: 1.4rem; font-weight: 600; color: var(--text-main); }
+        .stat-label { font-size: 0.55rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px; }
+        .stat-val { font-size: 1.1rem; font-weight: 600; }
 
         /* Scrollbar */
         ::-webkit-scrollbar { height: 4px; width: 4px; }
@@ -173,7 +175,7 @@
 </head>
 <body>
     <header>
-        <div class="logo">S O F T W A R E — F A C T O R Y</div>
+        <div class="logo">GOOSE FACTORY · ORCHESTRATOR</div>
         <div class="status-pill">
             <div class="dot" id="p-dot"></div>
             <span id="f-state">IDLE</span>
@@ -181,28 +183,12 @@
     </header>
 
     <div class="main-container">
-        <!-- Pipeline -->
-        <div class="column">
-            <div class="column-header">Pipeline</div>
-            <div class="pipeline-list" id="pipeline">
-                <div class="pipeline-item" id="STEP_IDLE"><span class="p-num">1</span> Idle</div>
-                <div class="pipeline-item" id="STEP_SPEC_DEVELOPMENT"><span class="p-num">2</span> Spec</div>
-                <div class="pipeline-item" id="STEP_PLANNING"><span class="p-num">3</span> Planning</div>
-                <div class="pipeline-item" id="STEP_EXECUTION"><span class="p-num">4</span> Execution</div>
-                <div class="pipeline-item" id="STEP_INTEGRATION"><span class="p-num">5</span> Integration</div>
-                <div class="pipeline-item" id="STEP_CODE_RELEASE"><span class="p-num">6</span> Release</div>
-            </div>
-        </div>
-
-        <!-- Output Area -->
+        <!-- Output Area (Live Log Focus) -->
         <div class="output-area">
-            <div class="column-header">
-                Interactive Factory Output
-            </div>
+            <div class="column-header">Real-time Stream</div>
             
-            <!-- Horizontal Task Strip -->
             <div class="task-bar" id="task-queue">
-                <div style="color: var(--text-dim); font-size: 0.75rem; padding: 4px;">Awaiting decomposition...</div>
+                <div style="color: var(--text-dim); font-size: 0.7rem;">Waiting for planner nodes...</div>
             </div>
 
             <div class="log-stream" id="logs">
@@ -210,26 +196,43 @@
             </div>
         </div>
 
-        <!-- Stats Sidebar -->
+        <!-- Right Panel (State & Resource Hub) -->
         <div class="column right-sidebar">
-            <div class="column-header">Resource Monitor</div>
-            <div class="stats-section">
-                <div class="stat-box">
-                    <div class="stat-label">Consumption</div>
-                    <div class="stat-val" id="s-tokens">0</div>
-                    <div style="font-size: 0.6rem; color: var(--text-dim); margin-top: 4px;">total tokens consumed</div>
+            <div class="column-header">Factory State</div>
+            
+            <!-- Pipeline -->
+            <div class="panel-section">
+                <div class="stat-label" style="margin-bottom: 12px;">Lifecycle Stage</div>
+                <div id="pipeline">
+                    <div class="pipeline-item" id="STEP_IDLE"><div class="p-dot-small"></div> Idle</div>
+                    <div class="pipeline-item" id="STEP_SPEC_DEVELOPMENT"><div class="p-dot-small"></div> Specification</div>
+                    <div class="pipeline-item" id="STEP_PLANNING"><div class="p-dot-small"></div> Planning</div>
+                    <div class="pipeline-item" id="STEP_EXECUTION"><div class="p-dot-small"></div> Execution</div>
+                    <div class="pipeline-item" id="STEP_INTEGRATION"><div class="p-dot-small"></div> Integration</div>
+                    <div class="pipeline-item" id="STEP_CODE_RELEASE"><div class="p-dot-small"></div> Completion</div>
                 </div>
-                <div class="stat-box">
-                    <div class="stat-label">Completion</div>
-                    <div class="stat-val" id="s-progress">0%</div>
-                    <div style="font-size: 0.6rem; color: var(--text-dim); margin-top: 4px;">project milestones reached</div>
+            </div>
+
+            <!-- Stats -->
+            <div class="panel-section">
+                <div class="stat-label" style="margin-bottom: 12px;">Resource Monitor</div>
+                <div class="stat-grid">
+                    <div class="stat-box">
+                        <div class="stat-label">Tokens</div>
+                        <div class="stat-val" id="s-tokens">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Progress</div>
+                        <div class="stat-val" id="s-progress">0%</div>
+                    </div>
                 </div>
-                
-                <div style="margin-top: 20px; padding: 0 4px;">
-                    <div class="stat-label">Active Context</div>
-                    <div id="m-project" style="font-size: 0.85rem; font-weight: 500; margin-bottom: 8px;">-</div>
-                    <div id="m-build" style="font-family: 'Fira Code'; font-size: 0.65rem; color: var(--blue);">/builds/...</div>
-                </div>
+            </div>
+
+            <!-- Context -->
+            <div class="panel-section" style="border-bottom: none;">
+                <div class="stat-label">Active Build</div>
+                <div id="m-project" style="font-size: 0.9rem; font-weight: 500; margin: 8px 0;">-</div>
+                <div id="m-build" style="font-family: 'Fira Code', monospace; font-size: 0.6rem; color: var(--blue);">/builds/...</div>
             </div>
         </div>
     </div>
@@ -248,7 +251,7 @@
                     if (el) s === data.state ? el.classList.add('active') : el.classList.remove('active');
                 });
 
-                // Stats & Progress
+                // Stats
                 const tasks = data.tasks || [];
                 const completed = tasks.filter(t => t.status === 'COMPLETED').length;
                 const progress = tasks.length > 0 ? Math.round((completed / tasks.length) * 100) : 0;
@@ -258,11 +261,11 @@
                 document.getElementById('m-project').textContent = data.project || '-';
                 document.getElementById('m-build').textContent = data.build_dir || '-';
 
-                // Task Bar (In Output Window)
+                // Task bar updates
                 const queue = document.getElementById('task-queue');
                 if (tasks.length > 0) {
                     queue.innerHTML = tasks.map(t => `
-                        <div class="t-compact-card" style="border-left: 3px solid ${t.status === 'COMPLETED' ? 'var(--success)' : t.status === 'WORKING' ? 'var(--warning)' : 'var(--border)'}">
+                        <div class="t-compact-card" style="border-right: 2px solid ${t.status === 'COMPLETED' ? 'var(--success)' : t.status === 'WORKING' ? 'var(--warning)' : 'var(--border)'}">
                             <div class="t-title">${t.title}</div>
                             <div class="t-status" style="color: ${t.status === 'COMPLETED' ? 'var(--success)' : t.status === 'WORKING' ? 'var(--warning)' : 'var(--text-dim)'}">
                                 ${t.status || 'Pending'}
@@ -271,7 +274,7 @@
                     `).join('');
                 }
 
-                // Logs
+                // Logs (Appending focus)
                 const logEl = document.getElementById('logs');
                 if (data.history) {
                     logEl.innerHTML = data.history.map(entry => {
@@ -281,7 +284,7 @@
                     logEl.scrollTop = logEl.scrollHeight;
                 }
 
-                // Pulse dot
+                // Global Pulse
                 const dot = document.getElementById('p-dot');
                 if (data.state === 'FAILED') dot.style.background = 'var(--error)';
                 else if (data.state === 'CODE_RELEASE') dot.style.background = 'var(--success)';
