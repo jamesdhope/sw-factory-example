@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+status.json
+builds/*/
+!builds/011_turing_factory_v2/

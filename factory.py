@@ -203,7 +203,7 @@ class SoftwareFactory:
         self.update_status("Final integration merging...")
         branch_list = [t['branch'] for t in self.context.tasks if t.get('status') == 'COMPLETED']
         
-        prompt = f"Merge these branches: {', '.join(branch_list)}. Resolve conflicts and finalize project in {self.context.build_dir}."
+        prompt = f"Merge these branches: {', '.join(branch_list)}. Resolve conflicts, run final tests to ensure no regressions were introduced, and finalize project in {self.context.build_dir}."
         output, _ = self.run_goose_command(prompt)
         if output:
             self.transition(State.CODE_RELEASE, "Multi-agent integration successful.")
