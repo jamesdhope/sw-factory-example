@@ -68,8 +68,11 @@ class SoftwareFactory:
             "tasks": self.context.tasks,
             "total_tokens": self.context.total_tokens
         }
-        with open("status.json", "w") as f:
-            json.dump(status, f, indent=2)
+        try:
+            with open("status.json", "w") as f:
+                json.dump(status, f, indent=2)
+        except:
+            pass
         print(f"[{self.state.value}] {message}")
 
     def run_goose_command(self, prompt: str):
@@ -83,20 +86,30 @@ class SoftwareFactory:
                 text=True, 
                 check=True
             )
-            output = result.stdout
+            raw_output = result.stdout
             tokens = 0
-            if "{" in output:
+            text_response = ""
+            
+            if "{" in raw_output:
                 try:
-                    # JSON from Goose might have conversational text outside it
-                    json_parts = re.findall(r'\{.*\}', output, re.DOTALL)
-                    if json_parts:
-                        # Find the largest JSON block (the session summary)
-                        data = json.loads(json_parts[-1])
-                        tokens = data.get("metadata", {}).get("total_tokens") or 0
+                    json_part = raw_output[raw_output.find("{"):]
+                    data = json.loads(json_part)
+                    tokens = data.get("metadata", {}).get("total_tokens") or 0
+                    
+                    # Extract last assistant message text
+                    for msg in reversed(data.get("messages", [])):
+                        if msg.get("role") == "assistant":
+                            for content in msg.get("content", []):
+                                if content.get("type") == "text":
+                                    text_response += content.get("text", "")
+                            if text_response: break
                 except:
-                    pass
+                    text_response = raw_output # Fallback
+            else:
+                text_response = raw_output
+
             self.context.total_tokens += tokens
-            return output, tokens
+            return text_response, tokens
         except Exception as e:
             self.update_status(f"Goose failed: {e}")
             return None, 0
@@ -126,68 +139,71 @@ class SoftwareFactory:
     def handle_spec(self):
         prompt = f"Create a technical specification for: {self.context.objective}. Save to {self.context.spec_path}."
         output, _ = self.run_goose_command(prompt)
-        if output:
+        if output and not "error" in output.lower():
             self.transition(State.PLANNING, "Specification created. Moving to planning...")
         else:
-            self.transition(State.FAILED, "Failed to create specification.")
+            self.transition(State.FAILED, f"Failed to create specification: {output[:100]}")
 
     def handle_planning(self):
-        prompt = f"Based on the spec in {self.context.spec_path}, create a tasks.json file with a list of discrete coding tasks. Format each task as {{'id': 1, 'title': 'name', 'description': '...'}}. Output ONLY the raw JSON array. No preamble, no markdown code blocks."
+        prompt = f"Based on the spec in {self.context.spec_path}, create a tasks.json file with a list of discrete coding tasks. Format each task as {{'id': 1, 'title': 'name', 'description': '...'}}. Output ONLY the raw JSON array. No preamble."
         output, _ = self.run_goose_command(prompt)
         try:
-            # Robust JSON extraction
+            # Robust JSON extraction from the text response
             json_match = re.search(r'\[.*\]', output, re.DOTALL)
             if json_match:
                 tasks_str = json_match.group()
                 tasks = json.loads(tasks_str)
+                # Ensure each task has necessary keys
+                for t in tasks:
+                    if 'title' not in t: t['title'] = t.get('name', f"Task {t.get('id', '?')}")
+                
                 self.context.tasks = tasks
                 with open(self.context.tasks_path, "w") as f:
                     json.dump(tasks, f, indent=2)
                 self.transition(State.EXECUTION, f"Planned {len(tasks)} tasks.")
             else:
-                self.transition(State.FAILED, f"Goose output did not contain valid JSON array for tasks. Output start: {output[:50]}...")
+                self.transition(State.FAILED, f"Planner did not return JSON. Response: {output[:100]}")
         except Exception as e:
-            self.transition(State.FAILED, f"Failed to parse tasks.json: {e}")
+            self.transition(State.FAILED, f"Failed to parse tasks: {e}")
 
     def handle_execution(self):
         for task in self.context.tasks:
-            task_id = task['id']
-            title = task['title'].replace(" ", "_")
+            task_id = task.get('id', 'unknown')
+            title = task.get('title', 'untitled').replace(" ", "_")
             branch_name = f"task/build_{self.context.build_dir.split('/')[-1]}_{title}"
             task['branch'] = branch_name
             task['status'] = 'WORKING'
             task['tokens'] = 0
             
-            self.update_status(f"Starting Worker Task {task_id}: {task['title']}")
+            self.update_status(f"Worker Task {task_id}: {task.get('title', 'untitled')}")
             
             try:
                 subprocess.run(["git", "checkout", "-b", branch_name], check=True)
                 
-                prompt = f"Executing task: {task['title']}. Description: {task['description']}. The spec is in {self.context.spec_path}. Implement the code and tests within the project structure. Commit your work."
+                prompt = f"Executing task: {task.get('title')}. Description: {task.get('description')}. Spec in {self.context.spec_path}. Implement and commit work."
                 output, tokens = self.run_goose_command(prompt)
                 task['tokens'] = tokens
                 
                 if output:
                     subprocess.run(["git", "add", "."], check=True)
-                    subprocess.run(["git", "commit", "-m", f"Completed Task {task_id}: {task['title']}"], check=False)
+                    subprocess.run(["git", "commit", "-m", f"Completed Task {task_id}"], check=False)
                     task['status'] = 'COMPLETED'
                 else:
                     task['status'] = 'FAILED'
                 
                 subprocess.run(["git", "checkout", "master"], check=True)
             except Exception as e:
-                self.update_status(f"Git or Worker failed for task {task_id}: {e}")
+                self.update_status(f"Task {task_id} failed: {e}")
                 task['status'] = 'ERROR'
                 subprocess.run(["git", "checkout", "master"], check=False)
 
-        self.transition(State.INTEGRATION, "Execution complete. Moving to integration...")
+        self.transition(State.INTEGRATION, "Execution complete.")
 
     def handle_integration(self):
-        self.update_status("Release Agent merging branches...")
-        branch_list = [f"task/build_{self.context.build_dir.split('/')[-1]}_{t['title'].replace(' ', '_')}" 
-                       for t in self.context.tasks if t.get('status') == 'COMPLETED']
+        self.update_status("Final integration merging...")
+        branch_list = [t['branch'] for t in self.context.tasks if t.get('status') == 'COMPLETED']
         
-        prompt = f"Merge the following branches into master: {', '.join(branch_list)}. Resolve any conflicts and finalize the build. Spec is in {self.context.spec_path}. Resolve logic in the project directory."
+        prompt = f"Merge these branches: {', '.join(branch_list)}. Resolve conflicts and finalize project in {self.context.build_dir}."
         output, _ = self.run_goose_command(prompt)
         if output:
             self.transition(State.CODE_RELEASE, "Multi-agent integration successful.")
