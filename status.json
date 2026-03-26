@@ -1,18 +1,11 @@
 {
-  "state": "CODE_RELEASE",
-  "message": "Software Factory: Task Completed Successfully!",
-  "objective": "A simple Python script that reverses a string from user input",
-  "project": "reversing_tool",
-  "build_dir": "builds/001_reversing_tool",
+  "state": "CODE_GENERATION",
+  "message": "Running Goose: Based on the spec in builds/001_weather_factory/spec.md, generate the implementation in builds/001_w...",
+  "objective": "Build a simple Python weather CLI app that has separate modules for API calls and data formatting.",
+  "project": "weather_factory",
+  "build_dir": "builds/001_weather_factory",
   "history": [
-    "State: SPEC_DEVELOPMENT - Starting project: reversing_tool",
-    "State: CODE_GENERATION - Specification created.",
-    "State: CODE_TESTING - Implementation generated.",
-    "State: CODE_GENERATION - Retrying code generation due to test failure.",
-    "State: CODE_TESTING - Implementation generated.",
-    "State: CODE_GENERATION - Retrying code generation due to test failure.",
-    "State: CODE_TESTING - Implementation generated.",
-    "State: CODE_INTEGRATION - Tests passed.",
-    "State: CODE_RELEASE - Integration complete."
+    "State: SPEC_DEVELOPMENT - Starting project: weather_factory",
+    "State: CODE_GENERATION - Specification created."
   ]
 }
