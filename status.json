@@ -1,39 +1,10 @@
 {
-  "state": "EXECUTION",
-  "message": "Running Goose: Executing task: Create Main Application Script. Description: Develop the main script to serve as the...",
+  "state": "SPEC_DEVELOPMENT",
+  "message": "Running Goose: Create a technical specification for the following objective: Build a simple Python weather CLI app ...",
   "objective": "Build a simple Python weather CLI app that has separate modules for API calls and data formatting.",
   "project": "weather_factory",
-  "build_dir": "builds/002_weather_factory",
+  "build_dir": "builds/001_weather_factory",
   "history": [
-    "State: SPEC_DEVELOPMENT - Starting project: weather_factory",
-    "State: PLANNING - Specification created. Moving to planning...",
-    "State: EXECUTION - Planned 5 tasks."
-  ],
-  "tasks": [
-    {
-      "id": 1,
-      "title": "Create Main Application Script",
-      "description": "Develop the main script to serve as the entry point, handling user input, parsing command-line arguments, and invoking functionalities. Integrate argparse for command-line options like specifying a city, choosing units, and verbosity."
-    },
-    {
-      "id": 2,
-      "title": "Develop API Call Module",
-      "description": "Create a module named weather_api.py to manage all API interactions, setup API key and endpoint, fetch weather data, and handle errors. Ensure efficient use of API requests considering rate limiting."
-    },
-    {
-      "id": 3,
-      "title": "Implement Data Formatting Module",
-      "description": "Develop a formatter.py module for manipulating and presenting data. Include functions to parse raw API data, extract relevant information, and format it for CLI output in JSON or plain text formats."
-    },
-    {
-      "id": 4,
-      "title": "Setup Development Environment",
-      "description": "Configure the development environment for Python 3.8 or higher. Ensure compliance with PEP8 guidelines and design modules to be easily extensible or replaceable."
-    },
-    {
-      "id": 5,
-      "title": "Design and Implement Unit Tests",
-      "description": "Design and implement unit tests for the API and data formatting modules using unittest or pytest. Test scenarios should cover network failures, incorrect city names, and varied API responses."
-    }
+    "State: SPEC_DEVELOPMENT - Starting project: weather_factory"
   ]
 }
