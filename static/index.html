@@ -272,13 +272,15 @@
                 const queue = document.getElementById('task-queue');
                 if (data.tasks && data.tasks.length > 0) {
                     queue.innerHTML = data.tasks.map(t => `
-                        <div class="task-card" style="padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: ${t.status === 'COMPLETED' ? 'rgba(0, 255, 136, 0.05)' : 'rgba(255, 255, 255, 0.02)'}">
+                        <div class="task-card" style="padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: ${t.status === 'COMPLETED' ? 'rgba(0, 255, 136, 0.05)' : t.status === 'WORKING' ? 'rgba(0, 242, 255, 0.05)' : 'rgba(255, 255, 255, 0.02)'}">
                             <div style="font-size: 0.7rem; color: var(--text-dim); margin-bottom: 4px;">TASK ${t.id}</div>
                             <div style="font-size: 0.85rem; font-weight: 600; color: ${t.status === 'COMPLETED' ? 'var(--success)' : 'var(--text-main)'}">${t.title}</div>
-                            <div style="font-size: 0.7rem; margin-top: 8px; color: ${t.status === 'COMPLETED' ? 'var(--success)' : 'var(--accent)'}">${t.status || 'PENDING'}</div>
+                            <div style="font-size: 0.65rem; margin-top: 4px; color: var(--text-dim); font-family: 'Fira Code'">${t.branch || ''}</div>
+                            <div style="font-size: 0.7rem; margin-top: 8px; color: ${t.status === 'COMPLETED' ? 'var(--success)' : t.status === 'WORKING' ? 'var(--accent)' : 'var(--text-dim)'}">${t.status || 'PENDING'}</div>
                         </div>
                     `).join('');
-                } else {
+                }
+ else {
                     queue.innerHTML = '<div style="color: var(--text-dim); font-size: 0.8rem;">Planner has not defined tasks yet.</div>';
                 }
 

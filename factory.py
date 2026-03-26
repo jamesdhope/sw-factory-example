@@ -137,8 +137,10 @@ class SoftwareFactory:
             task_id = task['id']
             title = task['title'].replace(" ", "_")
             branch_name = f"task/build_{self.context.build_dir.split('/')[-1]}_{title}"
+            task['branch'] = branch_name
+            task['status'] = 'WORKING'
             
-            self.update_status(f"Starting Worker Task {task_id}: {task['title']}")
+            self.update_status(f"Starting Worker Task {task_id}: {task['title']} on branch {branch_name}")
             
             # Git Branching Flow
             try:
@@ -154,11 +156,11 @@ class SoftwareFactory:
                 else:
                     task['status'] = 'FAILED'
                 
-                subprocess.run(["git", "checkout", "main"], check=True)
+                subprocess.run(["git", "checkout", "master"], check=True)
             except Exception as e:
                 self.update_status(f"Git or Worker failed for task {task_id}: {e}")
-                task['status'] = 'FAILED'
-                subprocess.run(["git", "checkout", "main"], check=False)
+                task['status'] = 'ERROR'
+                subprocess.run(["git", "checkout", "master"], check=False)
 
         self.transition(State.INTEGRATION, "Execution complete. Moving to integration...")
 
@@ -167,7 +169,7 @@ class SoftwareFactory:
         branch_list = [f"task/build_{self.context.build_dir.split('/')[-1]}_{t['title'].replace(' ', '_')}" 
                        for t in self.context.tasks if t.get('status') == 'COMPLETED']
         
-        prompt = f"Merge the following branches into main: {', '.join(branch_list)}. Resolve any conflicts and finalize the build. Spec is in {self.context.spec_path}."
+        prompt = f"Merge the following branches into master: {', '.join(branch_list)}. Resolve any conflicts and finalize the build. Spec is in {self.context.spec_path}."
         if self.run_goose_command(prompt):
             self.transition(State.CODE_RELEASE, "Multi-agent integration successful.")
         else:
