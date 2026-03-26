@@ -203,9 +203,9 @@
                     <ul class="step-list" id="pipeline">
                         <li class="step-item" id="STEP_IDLE"><span class="step-icon">1</span> Idle</li>
                         <li class="step-item" id="STEP_SPEC_DEVELOPMENT"><span class="step-icon">2</span> Spec Development</li>
-                        <li class="step-item" id="STEP_CODE_GENERATION"><span class="step-icon">3</span> Code Generation</li>
-                        <li class="step-item" id="STEP_CODE_TESTING"><span class="step-icon">4</span> Code Testing</li>
-                        <li class="step-item" id="STEP_CODE_INTEGRATION"><span class="step-icon">5</span> Code Integration</li>
+                        <li class="step-item" id="STEP_PLANNING"><span class="step-icon">3</span> Planning (Task Creation)</li>
+                        <li class="step-item" id="STEP_EXECUTION"><span class="step-icon">4</span> Execution (Parallel Workers)</li>
+                        <li class="step-item" id="STEP_INTEGRATION"><span class="step-icon">5</span> Integration (Branch Merging)</li>
                         <li class="step-item" id="STEP_CODE_RELEASE"><span class="step-icon">6</span> Code Release</li>
                     </ul>
 
@@ -232,6 +232,13 @@
                 </div>
 
                 <div class="card" style="margin-top: 24px;">
+                    <div class="card-title">Task Orchestration Queue</div>
+                    <div id="task-queue" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">
+                        <!-- Tasks will be rendered here -->
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 24px;">
                     <div class="card-title">Objective</div>
                     <p id="meta-objective" style="font-size: 1.1rem; font-weight: 300; color: var(--accent);">-</p>
                 </div>
@@ -249,15 +256,31 @@
                 document.getElementById('factory-state').textContent = data.state;
                 
                 // Update Sidebar
-                const steps = ['IDLE', 'SPEC_DEVELOPMENT', 'CODE_GENERATION', 'CODE_TESTING', 'CODE_INTEGRATION', 'CODE_RELEASE'];
+                const steps = ['IDLE', 'SPEC_DEVELOPMENT', 'PLANNING', 'EXECUTION', 'INTEGRATION', 'CODE_RELEASE'];
                 steps.forEach(s => {
                     const el = document.getElementById(`STEP_${s}`);
-                    if (s === data.state) {
-                        el.classList.add('active');
-                    } else {
-                        el.classList.remove('active');
+                    if (el) {
+                        if (s === data.state) {
+                            el.classList.add('active');
+                        } else {
+                            el.classList.remove('active');
+                        }
                     }
                 });
+
+                // Update Task Queue
+                const queue = document.getElementById('task-queue');
+                if (data.tasks && data.tasks.length > 0) {
+                    queue.innerHTML = data.tasks.map(t => `
+                        <div class="task-card" style="padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: ${t.status === 'COMPLETED' ? 'rgba(0, 255, 136, 0.05)' : 'rgba(255, 255, 255, 0.02)'}">
+                            <div style="font-size: 0.7rem; color: var(--text-dim); margin-bottom: 4px;">TASK ${t.id}</div>
+                            <div style="font-size: 0.85rem; font-weight: 600; color: ${t.status === 'COMPLETED' ? 'var(--success)' : 'var(--text-main)'}">${t.title}</div>
+                            <div style="font-size: 0.7rem; margin-top: 8px; color: ${t.status === 'COMPLETED' ? 'var(--success)' : 'var(--accent)'}">${t.status || 'PENDING'}</div>
+                        </div>
+                    `).join('');
+                } else {
+                    queue.innerHTML = '<div style="color: var(--text-dim); font-size: 0.8rem;">Planner has not defined tasks yet.</div>';
+                }
 
                 // Update Metadata
                 document.getElementById('meta-project').textContent = data.project;
@@ -268,8 +291,10 @@
                 const logContainer = document.getElementById('logs');
                 if (data.history && data.history.length > 0) {
                     logContainer.innerHTML = data.history.map(entry => {
-                        const [state, ...msg] = entry.split(' - ');
-                        return `<div class="log-entry"><span>${state}</span> ${msg.join(' - ')}</div>`;
+                        const parts = entry.split(' - ');
+                        const state = parts[0];
+                        const msg = parts.slice(1).join(' - ');
+                        return `<div class="log-entry"><span>${state}</span> ${msg}</div>`;
                     }).join('') + `<div class="log-entry"><span>CURRENT</span> ${data.message}</div>`;
                     logContainer.scrollTop = logContainer.scrollHeight;
                 }

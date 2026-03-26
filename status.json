@@ -1,18 +1,44 @@
 {
-  "state": "CODE_RELEASE",
-  "message": "Software Factory: Task Completed Successfully!",
-  "objective": "A simple Python script that reverses a string from user input",
-  "project": "reversing_tool",
-  "build_dir": "builds/001_reversing_tool",
+  "state": "EXECUTION",
+  "message": "Running Goose: Executing task: Set Up Project Structure. Description: Create directories for each module and set up...",
+  "objective": "Build a simple Python weather CLI app that has separate modules for API calls and data formatting.",
+  "project": "weather_factory",
+  "build_dir": "builds/001_weather_factory",
   "history": [
-    "State: SPEC_DEVELOPMENT - Starting project: reversing_tool",
-    "State: CODE_GENERATION - Specification created.",
-    "State: CODE_TESTING - Implementation generated.",
-    "State: CODE_GENERATION - Retrying code generation due to test failure.",
-    "State: CODE_TESTING - Implementation generated.",
-    "State: CODE_GENERATION - Retrying code generation due to test failure.",
-    "State: CODE_TESTING - Implementation generated.",
-    "State: CODE_INTEGRATION - Tests passed.",
-    "State: CODE_RELEASE - Integration complete."
+    "State: SPEC_DEVELOPMENT - Starting project: weather_factory",
+    "State: PLANNING - Specification created. Moving to planning...",
+    "State: EXECUTION - Planned 6 tasks."
+  ],
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Set Up Project Structure",
+      "description": "Create directories for each module and set up initial files for each module."
+    },
+    {
+      "id": 2,
+      "title": "Integrate API Module",
+      "description": "Implement functions for API requests and response handling."
+    },
+    {
+      "id": 3,
+      "title": "Develop Data Formatting Module",
+      "description": "Write functions to process and format the API data."
+    },
+    {
+      "id": 4,
+      "title": "Build CLI Interface",
+      "description": "Implement command-line interface logic and integrate API and formatting modules."
+    },
+    {
+      "id": 5,
+      "title": "Testing",
+      "description": "Write unit tests for each module and test integration between modules."
+    },
+    {
+      "id": 6,
+      "title": "Documentation",
+      "description": "Document code and provide a usage guide."
+    }
   ]
 }

@@ -3,14 +3,14 @@ import os
 import json
 import dataclasses
 from enum import Enum
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 class State(Enum):
     IDLE = "IDLE"
     SPEC_DEVELOPMENT = "SPEC_DEVELOPMENT"
-    CODE_GENERATION = "CODE_GENERATION"
-    CODE_TESTING = "CODE_TESTING"
-    CODE_INTEGRATION = "CODE_INTEGRATION"
+    PLANNING = "PLANNING"
+    EXECUTION = "EXECUTION"
+    INTEGRATION = "INTEGRATION"
     CODE_RELEASE = "CODE_RELEASE"
     FAILED = "FAILED"
 
@@ -20,9 +20,9 @@ class FactoryContext:
     project_name: str = "project"
     build_dir: str = ""
     spec_path: str = ""
-    code_path: str = ""
-    test_path: str = ""
+    tasks_path: str = ""
     history: List[str] = dataclasses.field(default_factory=list)
+    tasks: List[Dict] = dataclasses.field(default_factory=list)
 
 class SoftwareFactory:
     def __init__(self, objective: str, project_name: str = "auto_project"):
@@ -32,20 +32,18 @@ class SoftwareFactory:
         self.transitions = {
             State.IDLE: self.handle_idle,
             State.SPEC_DEVELOPMENT: self.handle_spec,
-            State.CODE_GENERATION: self.handle_code,
-            State.CODE_TESTING: self.handle_test,
-            State.CODE_INTEGRATION: self.handle_integration,
+            State.PLANNING: self.handle_planning,
+            State.EXECUTION: self.handle_execution,
+            State.INTEGRATION: self.handle_integration,
             State.CODE_RELEASE: self.handle_release,
         }
         self.update_status("Initialized")
 
     def setup_build_dir(self):
-        """Creates an incremented build directory."""
         base_dir = "builds"
         if not os.path.exists(base_dir):
             os.makedirs(base_dir)
         
-        # Find next increment
         existing = [d for d in os.listdir(base_dir) if os.path.isdir(os.path.join(base_dir, d))]
         indices = [int(d.split('_')[0]) for d in existing if d.split('_')[0].isdigit()]
         next_idx = max(indices, default=0) + 1
@@ -55,25 +53,23 @@ class SoftwareFactory:
         os.makedirs(self.context.build_dir)
         
         self.context.spec_path = os.path.join(self.context.build_dir, "spec.md")
-        self.context.code_path = os.path.join(self.context.build_dir, "implementation.py")
-        self.context.test_path = os.path.join(self.context.build_dir, "tests.py")
+        self.context.tasks_path = os.path.join(self.context.build_dir, "tasks.json")
 
     def update_status(self, message: str):
-        """Writes current state and message to status.json for the dashboard."""
         status = {
             "state": self.state.value,
             "message": message,
             "objective": self.context.objective,
             "project": self.context.project_name,
             "build_dir": self.context.build_dir,
-            "history": self.context.history
+            "history": self.context.history,
+            "tasks": self.context.tasks
         }
         with open("status.json", "w") as f:
             json.dump(status, f, indent=2)
         print(f"[{self.state.value}] {message}")
 
     def run_goose_command(self, prompt: str):
-        """Helper to run goose CLI commands."""
         self.update_status(f"Running Goose: {prompt[:100]}...")
         goose_path = "/Users/jamesdhope/.local/bin/goose"
         try:
@@ -87,9 +83,6 @@ class SoftwareFactory:
             return result.stdout
         except subprocess.CalledProcessError as e:
             self.update_status(f"Goose failed: {e.stderr}")
-            return None
-        except FileNotFoundError:
-            self.update_status("Error: 'goose' command not found.")
             return None
 
     def transition(self, next_state: State, message: str = ""):
@@ -115,37 +108,68 @@ class SoftwareFactory:
         self.transition(State.SPEC_DEVELOPMENT, f"Starting project: {self.context.project_name}")
 
     def handle_spec(self):
-        prompt = f"Create a technical specification for the following objective: {self.context.objective}. Save it to {self.context.spec_path}."
-        output = self.run_goose_command(prompt)
-        if output:
-            self.transition(State.CODE_GENERATION, "Specification created.")
+        prompt = f"Create a technical specification for: {self.context.objective}. Save to {self.context.spec_path}."
+        if self.run_goose_command(prompt):
+            self.transition(State.PLANNING, "Specification created. Moving to planning...")
         else:
             self.transition(State.FAILED, "Failed to create specification.")
 
-    def handle_code(self):
-        prompt = f"Based on the spec in {self.context.spec_path}, generate the implementation in {self.context.code_path}."
+    def handle_planning(self):
+        prompt = f"Based on the spec in {self.context.spec_path}, create a tasks.json file in {self.context.build_dir} with a list of discrete coding tasks. Format each task as {{'id': 1, 'title': 'name', 'description': '...'}}. ONLY output the raw JSON list."
         output = self.run_goose_command(prompt)
-        if output:
-            self.transition(State.CODE_TESTING, "Implementation generated.")
-        else:
-            self.transition(State.FAILED, "Failed to generate code.")
+        try:
+            # Try to extract JSON if it was buried in text
+            import re
+            json_match = re.search(r'\[.*\]', output, re.DOTALL)
+            if json_match:
+                tasks = json.loads(json_match.group())
+                self.context.tasks = tasks
+                with open(self.context.tasks_path, "w") as f:
+                    json.dump(tasks, f, indent=2)
+                self.transition(State.EXECUTION, f"Planned {len(tasks)} tasks.")
+            else:
+                self.transition(State.FAILED, "Goose didn't output valid JSON for tasks.")
+        except Exception as e:
+            self.transition(State.FAILED, f"Failed to parse tasks.json: {e}")
 
-    def handle_test(self):
-        prompt = f"Write unit tests for the code in {self.context.code_path} and save them to {self.context.test_path}. Then run the tests and report results."
-        output = self.run_goose_command(prompt)
-        if output and "FAIL" not in output.upper():
-            self.transition(State.CODE_INTEGRATION, "Tests passed.")
-        else:
-            self.update_status("Tests failed. Retrying code generation...")
-            self.transition(State.CODE_GENERATION, "Retrying code generation due to test failure.")
+    def handle_execution(self):
+        for task in self.context.tasks:
+            task_id = task['id']
+            title = task['title'].replace(" ", "_")
+            branch_name = f"task/build_{self.context.build_dir.split('/')[-1]}_{title}"
+            
+            self.update_status(f"Starting Worker Task {task_id}: {task['title']}")
+            
+            # Git Branching Flow
+            try:
+                subprocess.run(["git", "checkout", "-b", branch_name], check=True)
+                
+                prompt = f"Executing task: {task['title']}. Description: {task['description']}. The spec is in {self.context.spec_path}. Implement the code and tests within the project structure."
+                output = self.run_goose_command(prompt)
+                
+                if output:
+                    subprocess.run(["git", "add", "."], check=True)
+                    subprocess.run(["git", "commit", "-m", f"Completed Task {task_id}: {task['title']}"], check=True)
+                    task['status'] = 'COMPLETED'
+                else:
+                    task['status'] = 'FAILED'
+                
+                subprocess.run(["git", "checkout", "main"], check=True)
+            except Exception as e:
+                self.update_status(f"Git or Worker failed for task {task_id}: {e}")
+                task['status'] = 'FAILED'
+                subprocess.run(["git", "checkout", "main"], check=False)
+
+        self.transition(State.INTEGRATION, "Execution complete. Moving to integration...")
 
     def handle_integration(self):
-        # In a real scenario, this might involve git or merging files.
-        # For now, we just acknowledge receipt in the build dir.
-        prompt = f"Finalize and integrate the generated code in {self.context.code_path}. Ensure it is clean and ready for release."
-        output = self.run_goose_command(prompt)
-        if output:
-            self.transition(State.CODE_RELEASE, "Integration complete.")
+        self.update_status("Release Agent merging branches...")
+        branch_list = [f"task/build_{self.context.build_dir.split('/')[-1]}_{t['title'].replace(' ', '_')}" 
+                       for t in self.context.tasks if t.get('status') == 'COMPLETED']
+        
+        prompt = f"Merge the following branches into main: {', '.join(branch_list)}. Resolve any conflicts and finalize the build. Spec is in {self.context.spec_path}."
+        if self.run_goose_command(prompt):
+            self.transition(State.CODE_RELEASE, "Multi-agent integration successful.")
         else:
             self.transition(State.FAILED, "Integration failed.")
 
@@ -154,13 +178,10 @@ class SoftwareFactory:
 
 if __name__ == "__main__":
     import sys
-    obj = "Create a simple Python utility that prints the first 10 Fibonacci numbers."
-    name = "fibonacci_tool"
-    
-    if len(sys.argv) > 1:
-        obj = sys.argv[1]
-    if len(sys.argv) > 2:
-        name = sys.argv[2]
+    obj = "Build a simple Python weather CLI app that has separate modules for API calls and data formatting."
+    name = "weather_cli"
+    if len(sys.argv) > 1: obj = sys.argv[1]
+    if len(sys.argv) > 2: name = sys.argv[2]
     
     factory = SoftwareFactory(obj, name)
     factory.run()
