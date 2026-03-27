@@ -1,6 +1,6 @@
 # The Optimized Granularity Model (OGM)
 
-![Software Factory Optimization Space](./software_factory_optimization_graph_optimum_point_1774614437279.png)
+![Software Factory Optimization Space](./software_factory_optimization_graph_generalized_1774614203965.png)
 
 ## 📊 Decoding the Optimization Space
 
@@ -20,9 +20,7 @@ Each line in the graph above represents a critical force acting on your factory'
 
 ### **✅ Total Cost (Green Curve)**
 - **Behavior**: U-Shaped (The Parabola of Profit).
-- **Logic**: This is the sum of all forces. 
-- **The Optimum (Point)**: The exact mathematical minimum of this curve is your absolute highest **FTE**. In the graph, this is the single point marked with a dashed line.
-- **The Efficiency Zone (Region)**: In practice, because task complexity varies, we aim for the "flat" bottom of the U-curve (the Sweet Spot region) rather than trying to hit a single integer perfectly.
+- **Logic**: This is the sum of all forces. At the far left, you fail too often (High Risk). At the far right, you spend too much on startup tax (High Overhead). The **Sweet Spot** is the bottom of this curve.
 
 ## 🎯 Where does FTE fit?
 
