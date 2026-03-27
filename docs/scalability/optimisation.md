@@ -22,6 +22,17 @@ Each line in the graph above represents a critical force acting on your factory'
 - **Behavior**: U-Shaped (The Parabola of Profit).
 - **Logic**: This is the sum of all forces. At the far left, you fail too often (High Risk). At the far right, you spend too much on startup tax (High Overhead). The **Sweet Spot** is the bottom of this curve.
 
+## 🎯 Where does FTE fit?
+
+**Functional Token Efficiency (FTE)** is not a point on the graph; it is the **Efficiency Score** of any given point on the X-axis (N).
+
+- **Maximum FTE**: This occurs strictly at the **Sweet Spot**. This is the point where the ratio of "Useful Work" to "Total Tokens" is at its peak.
+- **Left of the Spot**: FTE drops because the **Risk Penalty (Red)** is too high. You are wasting tokens on failures and retries.
+- **Right of the Spot**: FTE drops because the **Bootstrap Tax (Blue)** is too high. You are wasting tokens starting too many agents.
+
+> [!TIP]
+> **The Goal**: Your factory should aim to operate at the **local minimum of the Green Curve**, which automatically results in your **Maximum FTE**.
+
 ## 🧩 The Variables
 
 | Symbol | Concept | Value Range | Impact |
