@@ -1,6 +1,6 @@
 # The Optimized Granularity Model (OGM)
 
-![Software Factory Optimization Space](./software_factory_optimization_graph_generalized_1774614203965.png)
+![Software Factory Optimization Space](./optimization_graph.png)
 
 ## 📊 Decoding the Optimization Space
 
