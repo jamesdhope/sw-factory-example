@@ -1,26 +1,31 @@
 # The Optimized Granularity Model (OGM)
 
-![Software Factory Optimization Space](./optimization_graph.png)
+![Software Factory Optimization Space](./optimization_graph_fte.png)
 
 ## 📊 Decoding the Optimization Space
 
-Each line in the graph above represents a critical force acting on your factory's bottom line:
+Each line in the graph above represents a specific force or benchmark in your factory's economics:
+
+### **🏁 Useful Work / Value (Horizontal White Line)**
+- **Behavior**: Perfectly Horizontal.
+- **Logic**: For a defined objective (e.g., "Build a React App"), the total volume of "useful" code is a constant. Whether you use 1 worker or 20, the final product's baseline value remains the same. This is your **North Star**.
 
 ### **📈 Bootstrap Tax (Blue Line)**
-- **Behavior**: Linear (N * B).
-- **Logic**: Every time you add a worker, you pay a fixed "entry tax" for system prompts and context loading. If you have 50 workers, you pay this 50 times.
+- **Behavior**: Linear ($N \times B$).
+- **Logic**: The cost of "Goose-OS Entry." Every time you add a worker, you pay for the system prompt and context loading.
 
 ### **📉 Risk Penalty (Red Curve)**
 - **Behavior**: Exponential Decay.
-- **Logic**: This is the "hidden cost" of complexity. When tasks are few (N is small), they are massive and hard for the AI to get right. As you split tasks (N increases), they become simpler, and the likelihood of needing a costly "Retry" drops toward zero.
+- **Logic**: The cost of failure. Larger tasks ($N$ is small) have a high probability of error. Splitting tasks makes them safer and reduces the "Retry Tax."
 
 ### **🏗️ Overhead (Orange Line)**
-- **Behavior**: Constant (S + P + I).
-- **Logic**: The cost of generating the Spec, Planning the tasks, and the Final Merge. This stays mostly flat regardless of how many workers you use.
+- **Behavior**: Constant ($S + P + I$).
+- **Logic**: The fixed cost of the Orchestrator (Spec, Planning, and Merging).
 
-### **✅ Total Cost (Green Curve)**
+### **✅ Total Project Cost (Green Curve)**
 - **Behavior**: U-Shaped (The Parabola of Profit).
-- **Logic**: This is the sum of all forces. At the far left, you fail too often (High Risk). At the far right, you spend too much on startup tax (High Overhead). The **Sweet Spot** is the bottom of this curve.
+- **Logic**: The sum of all infrastructure costs sitting *on top* of your Useful Work.
+- **The Gap**: The vertical distance between the **Green Curve** and the **White Line** is your **Infrastructure Tax**. The smaller this gap, the higher your ROI.
 
 ## 🎯 Where does FTE fit?
 
