@@ -24,8 +24,12 @@ Each line in the graph above represents a specific force or benchmark in your fa
 
 ### **✅ Total Project Cost (Green Curve)**
 - **Behavior**: U-Shaped (The Parabola of Profit).
-- **Logic**: The sum of all infrastructure costs sitting *on top* of your Useful Work.
-- **The Gap**: The vertical distance between the **Green Curve** and the **White Line** is your **Infrastructure Tax**. The smaller this gap, the higher your ROI.
+- **Logic**: This is the sum of all infrastructure costs sitting *on top* of your Useful Work.
+- **The Infrastructure Gap**: The vertical distance between the **Green Curve** and the **White Line** represents your "Automation Tax." 
+- **The Sweet Spot**: This region on the X-axis is where the Green Curve reaches its lowest altitude, meaning the gap between cost and value is at its absolute minimum. This is where you achieve **Maximum FTE**.
+
+> [!NOTE]
+> Mathematically, the White Line should never touch the Green Curve. If they touched, it would mean you are getting human-level work for zero orchestration cost, zero risk, and zero bootstrapping—the "God-Mode" of AI automation.
 
 ## 🎯 Where does FTE fit?
 
