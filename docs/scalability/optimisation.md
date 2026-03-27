@@ -1,6 +1,6 @@
 # The Optimized Granularity Model (OGM)
 
-![Software Factory Optimization Space](./optimization_graph_v2.png)
+![Software Factory Optimization Space](./optimization_graph_v4_final.png)
 
 ## 📊 Decoding the Optimization Space
 
@@ -26,7 +26,7 @@ Each line in the graph above represents a specific force or benchmark in your fa
 - **Behavior**: U-Shaped (The Parabola of Profit).
 - **Logic**: This is the sum of all infrastructure costs sitting *on top* of your Useful Work.
 - **The Infrastructure Gap**: The vertical distance between the **Green Curve** and the **White Line** represents your "Automation Tax." 
-- **The Sweet Spot**: This region on the X-axis is where the Green Curve reaches its lowest altitude, meaning the gap between cost and value is at its absolute minimum. This is where you achieve **Maximum FTE**.
+- **The Sweet Spot (Vertical Band)**: This represents the "Optimized Zone" on the X-axis where the Green Curve reaches its lowest altitude. Within this band, the gap between cost and value is at its smallest.
 
 > [!NOTE]
 > Mathematically, the White Line should never touch the Green Curve. If they touched, it would mean you are getting human-level work for zero orchestration cost, zero risk, and zero bootstrapping—the "God-Mode" of AI automation.
@@ -40,7 +40,23 @@ Each line in the graph above represents a specific force or benchmark in your fa
 - **Right of the Spot**: FTE drops because the **Bootstrap Tax (Blue)** is too high. You are wasting tokens starting too many agents.
 
 > [!TIP]
-> **The Goal**: Your factory should aim to operate at the **local minimum of the Green Curve**, which automatically results in your **Maximum FTE**.
+> **The Goal**: Your factory should aim to operate within the **Vertical Sweet Spot Band**. This maximizes your FTE by balancing bootstrapping costs against task complexity.
+
+## 🏹 The 3 Optimization Regimes
+
+Depending on your business objectives, you can tune the factory to three different "Regimes":
+
+### **1. Efficiency-First (The Floor)**
+- **Target**: The absolute local minimum of the Green Curve.
+- **Goal**: Lowest possible token spend. Perfect for bulk content generation where profit margins are thin.
+
+### **2. Momentum-First (The Right Shoulder)**
+- **Target**: To the right of the Sweet Spot (Higher N).
+- **Goal**: Speed of delivery. By using more workers, you complete the project faster, accepting a higher "Bootstrap Tax" in exchange for reduced clock-time through parallelism.
+
+### **3. Assurance-First (The Safety Zone)**
+- **Target**: Very high N.
+- **Goal**: Zero failures. By over-granulating, you ensure each task is trivial for the AI ($P$ approx 1.0). This is used for critical infrastructure code where the cost of a retry is less important than the risk of a bug.
 
 ## 🧩 The Variables
 
